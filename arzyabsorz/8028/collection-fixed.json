@@ -1,0 +1,1388 @@
+{
+  "info": {
+    "_postman_id": "7f5d7f3c-c2d0-4bda-9f17-qa-sdet-exam",
+    "name": "Event Ticket Stateful API Tests",
+    "description": "Stateful integration tests for reservation, payment, confirmation, cancellation, capacity and error handling. Dynamic IDs are dual-written to the selected environment and to dedicated collection runtime variables, so the workflow also works in Scratch Pad when no environment is active.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Get Events",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/events",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test('Events response is a non-empty array', () => { pm.expect(data).to.be.an('array'); pm.expect(data.length).to.be.above(0); });",
+              "const firstEvent = Array.isArray(data) && data.length ? data[0] : null;",
+              "pm.test('First event has id and capacity', () => { pm.expect(firstEvent).to.be.an('object'); pm.expect(firstEvent).to.have.property('id'); pm.expect(firstEvent).to.have.property('capacity'); });",
+              "if (firstEvent) {",
+              "  pm.collectionVariables.set('rtEventId', String(firstEvent.id));",
+              "  pm.collectionVariables.set('rtEventCapacity', String(firstEvent.capacity));",
+              "  try { pm.environment.set('eventId', String(firstEvent.id)); } catch (e) {}",
+              "  try { pm.environment.set('eventCapacity', String(firstEvent.capacity)); } catch (e) {}",
+              "}",
+              "console.log('Runtime eventId:', pm.collectionVariables.get('rtEventId'));",
+              "console.log('Environment eventId:', pm.environment.get('eventId'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Capacity Workflow",
+      "item": [
+        {
+          "name": "02.1 - Reserve Capacity Slot 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Capacity User 1\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test('State is RESERVED', () => pm.expect(data.state).to.eql('RESERVED'));",
+                  "pm.collectionVariables.set('rtCapacityReservation1', data.reservationId);",
+                  "try { pm.environment.set('capacityReservation1', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.2 - Reserve Capacity Slot 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Capacity User 2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test('State is RESERVED', () => pm.expect(data.state).to.eql('RESERVED'));",
+                  "pm.collectionVariables.set('rtCapacityReservation2', data.reservationId);",
+                  "try { pm.environment.set('capacityReservation2', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.3 - Reserve Capacity Slot 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Capacity User 3\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test('State is RESERVED', () => pm.expect(data.state).to.eql('RESERVED'));",
+                  "pm.collectionVariables.set('rtCapacityReservation3', data.reservationId);",
+                  "try { pm.environment.set('capacityReservation3', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.4 - Reserve Beyond Capacity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Capacity Overflow\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Capacity error is returned', () => pm.expect(pm.response.json().error).to.eql('ظرفیت تکمیل است'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.5 - Cleanup Capacity Slot 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtCapacityReservation1}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Cleanup status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cleanup state is CANCELLED', () => pm.expect(pm.response.json().state).to.eql('CANCELLED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.6 - Cleanup Capacity Slot 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtCapacityReservation2}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Cleanup status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cleanup state is CANCELLED', () => pm.expect(pm.response.json().state).to.eql('CANCELLED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.7 - Cleanup Capacity Slot 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtCapacityReservation3}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Cleanup status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cleanup state is CANCELLED', () => pm.expect(pm.response.json().state).to.eql('CANCELLED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Successful Stateful Flow",
+      "item": [
+        {
+          "name": "03.1 - Reserve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"{{customerName}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test('State is RESERVED', () => pm.expect(data.state).to.eql('RESERVED'));",
+                  "pm.expect(data.reservationId).to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('rtReservationId', data.reservationId);",
+                  "try { pm.environment.set('reservationId', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.2 - Pay",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pay"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtReservationId}}\", \"card\": \"{{validCard}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test('Reservation correlation is preserved', () => pm.expect(data.reservationId).to.eql(pm.collectionVariables.get('rtReservationId')));",
+                  "pm.test('State is PAID', () => pm.expect(data.state).to.eql('PAID'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.3 - Confirm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtReservationId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test('State is CONFIRMED', () => pm.expect(data.state).to.eql('CONFIRMED'));",
+                  "pm.test('Ticket matches reservation', () => pm.expect(data.ticket).to.eql('TICKET-' + pm.collectionVariables.get('rtReservationId')));",
+                  "pm.collectionVariables.set('rtTicket', data.ticket);",
+                  "try { pm.environment.set('ticket', data.ticket); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.4 - Get Confirmed Reservation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservation/{{rtReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservation",
+                "{{rtReservationId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test('Persisted state is CONFIRMED', () => pm.expect(data.state).to.eql('CONFIRMED'));",
+                  "pm.test('Name and event are preserved', () => { pm.expect(data.name).to.eql(pm.variables.get('customerName')); pm.expect(data.eventId).to.eql(pm.collectionVariables.get('rtEventId')); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.5 - Cancel Confirmed Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtReservationId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Confirmed reservation cannot be cancelled', () => pm.expect(pm.response.json().error).to.eql('رزرو قابل لغو نیست'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Invalid Event",
+      "item": [
+        {
+          "name": "04.1 - Reserve Invalid Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"missing-event\", \"name\": \"Negative User\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Invalid event error is returned', () => pm.expect(pm.response.json().error).to.eql('رویداد یافت نشد'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Confirm Before Payment",
+      "item": [
+        {
+          "name": "05.1 - Reserve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Confirm Before Pay\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data=pm.response.json();",
+                  "pm.collectionVariables.set('rtConfirmBeforePayId', data.reservationId);",
+                  "try { pm.environment.set('confirmBeforePayId', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.2 - Confirm Before Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtConfirmBeforePayId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Confirmation is rejected', () => pm.expect(pm.response.json().error).to.eql('رزرو قابل تأیید نیست'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.3 - Verify State Remains RESERVED",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservation/{{rtConfirmBeforePayId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservation",
+                "{{rtConfirmBeforePayId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('State remains RESERVED', () => pm.expect(pm.response.json().state).to.eql('RESERVED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.4 - Cleanup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtConfirmBeforePayId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Cleanup status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Invalid Card",
+      "item": [
+        {
+          "name": "06.1 - Reserve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Invalid Card User\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data=pm.response.json();",
+                  "pm.collectionVariables.set('rtInvalidCardReservationId', data.reservationId);",
+                  "try { pm.environment.set('invalidCardReservationId', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.2 - Pay Invalid Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pay"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtInvalidCardReservationId}}\", \"card\": \"{{invalidCard}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Invalid card error is returned', () => pm.expect(pm.response.json().error).to.eql('اطلاعات کارت نامعتبر'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.3 - Verify State Remains RESERVED",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservation/{{rtInvalidCardReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservation",
+                "{{rtInvalidCardReservationId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('State remains RESERVED', () => pm.expect(pm.response.json().state).to.eql('RESERVED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.4 - Cleanup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtInvalidCardReservationId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Cleanup status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Pay Cancelled Reservation",
+      "item": [
+        {
+          "name": "07.1 - Reserve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reserve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reserve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\": \"{{rtEventId}}\", \"name\": \"Cancelled User\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data=pm.response.json();",
+                  "pm.collectionVariables.set('rtCancelledReservationId', data.reservationId);",
+                  "try { pm.environment.set('cancelledReservationId', data.reservationId); } catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.2 - Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtCancelledReservationId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('State is CANCELLED', () => pm.expect(pm.response.json().state).to.eql('CANCELLED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.3 - Pay Cancelled Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pay"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"{{rtCancelledReservationId}}\", \"card\": \"{{validCard}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Payment is rejected for cancelled reservation', () => pm.expect(pm.response.json().error).to.eql('رزرو در وضعیت نامعتبر'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.4 - Verify State Remains CANCELLED",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservation/{{rtCancelledReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservation",
+                "{{rtCancelledReservationId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('State remains CANCELLED', () => pm.expect(pm.response.json().state).to.eql('CANCELLED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 - Missing Reservation",
+      "item": [
+        {
+          "name": "08.1 - Pay Missing Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pay"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"missing-id\", \"card\": \"{{validCard}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Not found error is returned', () => pm.expect(pm.response.json().error).to.eql('رزرو یافت نشد'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "08.2 - Confirm Missing Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"missing-id\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Not found error is returned', () => pm.expect(pm.response.json().error).to.eql('رزرو یافت نشد'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "08.3 - Cancel Missing Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reservationId\": \"missing-id\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Not found error is returned', () => pm.expect(pm.response.json().error).to.eql('رزرو یافت نشد'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "08.4 - Get Missing Reservation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservation/missing-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservation",
+                "missing-id"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Not found error is returned', () => pm.expect(pm.response.json().error).to.eql('رزرو یافت نشد'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "customerName",
+      "value": "QA Candidate",
+      "type": "string"
+    },
+    {
+      "key": "validCard",
+      "value": "12345678",
+      "type": "string"
+    },
+    {
+      "key": "invalidCard",
+      "value": "1234",
+      "type": "string"
+    },
+    {
+      "key": "rtEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtEventCapacity",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtCapacityReservation1",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtCapacityReservation2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtCapacityReservation3",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtReservationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtTicket",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtConfirmBeforePayId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtInvalidCardReservationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rtCancelledReservationId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
