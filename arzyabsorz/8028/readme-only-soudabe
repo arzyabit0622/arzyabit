@@ -1,0 +1,70 @@
+بر اساس README و کد واقعی پروژه، خروجی آماده شد. طبق محدودیت آزمون هیچ تغییری در app.js یا فایل‌های Frontend نداده‌ام و همه فایل‌های تحویلی داخل tests/ قرار گرفته‌اند؛ همان چیزی که در Source هم تأکید کرده بودی.    pasted
+نتیجه کلی
+آزمون عملاً دو بخش اصلی دارد: Integration Test با Postman/Newman و E2E با Playwright. چون در صورت مسئله Performance/JMeter خواسته نشده، فایل JMeter اضافه نکردم. State اصلی نیز به این صورت پیاده شده است:
+RESERVED → PAID → CONFIRMED
+و مسیر لغو:
+RESERVED / PAID → CANCELLED
+1. Postman
+Collection کامل ساخته شده و شامل این موارد است:
+- دریافت Event و استخراج Dynamic eventId
+- تست ظرفیت: 3 رزرو موفق + رزرو چهارم با 409
+- Cleanup رزروهای ظرفیت
+- Happy Path کامل:
+  Reserve → Pay → Confirm → Get Reservation
+- استخراج Dynamic reservationId
+- استخراج ticket
+- Confirm قبل از Pay → 400
+- Invalid Card → 422
+- Pay روی رزرو Cancel شده → 400
+- Invalid Event → 404
+- Missing Reservation → 404
+- بررسی اینکه بعد از Failure، State به شکل صحیح باقی مانده
+- تلاش برای Cancel رزرو CONFIRMED
+- Environment Variables کامل
+این دقیقاً مطابق requirement مربوط به correlation و استخراج مقادیر Dynamic طراحی شده است.    pasted
+2. Newman
+Collection و Environment برای اجرای مستقیم Newman آماده‌اند:
+newman run tests/postman/collection.json -e tests/postman/environment.json -r cli,json --reporter-json-export tests/postman/newman-report.json
+
+newman-report.json هم در ساختار خروجی وجود دارد، ولی چون در محیط فعلی نصب dependencyها timeout شد، هیچ Pass/Fail یا Metric ساختگی داخلش ننوشتم. این مطابق قانون Accuracy است که عدد یا نتیجه‌ای بدون Evidence نباید اختراع شود.    pasted
+3. Playwright
+سناریوهای زیر کامل پیاده‌سازی شده‌اند:
+- رزرو موفق
+- پرداخت موفق
+- تأیید نهایی
+- نمایش Ticket
+- Name خالی
+- Invalid Card
+- مخفی بودن مرحله Confirm قبل از Payment
+- Cancel و بررسی Disable شدن دکمه‌ها
+- Capacity Full و نمایش خطای UI
+برای Locatorها از IDهای واقعی DOM استفاده شده و Hard Wait هم وجود ندارد.
+4. Analysis
+Report.md شامل این موارد است:
+- Environment
+- State Machine
+- API Scenarios
+- UI Scenarios
+- Correlation
+- Capacity behavior
+- State persistence after errors
+- محدودیت اجرای فعلی
+- دستورات اجرای Newman و Playwright
+- عدم ادعای Performance/Bottleneck بدون Evidence
+5. Final Files
+ساختار خروجی نهایی:
+tests/
+├── Report.md
+├── postman/
+│   ├── collection.json
+│   ├── environment.json
+│   └── newman-report.json
+└── playwright/
+    ├── package.json
+    ├── playwright.config.js
+    └── tests/
+        └── ticket-flow.spec.js
+
+فایل ZIP آماده تحویل:
+event-ticket-tests-ready.zip
+تنها کاری که قبل از Submit واقعی باید انجام شود این است که روی سیستم خودت start.bat را اجرا کنی و بعد Newman و Playwright را اجرا کنی تا newman-report.json و Playwright report با نتایج واقعی execution جایگزین شوند.
